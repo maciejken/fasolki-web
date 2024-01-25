@@ -1,6 +1,7 @@
 import { useSignal } from "@preact/signals";
 import { JSX } from "preact/jsx-runtime";
 import { startRegistration } from "npm:@simplewebauthn/browser";
+import SvgIcon from "../components/SvgIcon.tsx";
 
 const apiUrl = "https://flat-mouse-55.deno.dev";
 // const apiUrl = "http://localhost:4000";
@@ -8,6 +9,7 @@ const apiUrl = "https://flat-mouse-55.deno.dev";
 export default function LoginForm() {
   const email = useSignal("");
   const password = useSignal("");
+  const loading = useSignal(false);
 
   const handleEmailInput = (
     evt: JSX.TargetedEvent<HTMLInputElement, InputEvent>,
@@ -31,6 +33,7 @@ export default function LoginForm() {
     let attResp;
     const Authorization = `Basic ${btoa(`${email.value}:${password.value}`)}`;
     try {
+      loading.value = true;
       response = await fetch(`${apiUrl}/register/options`, {
         headers: {
           Authorization,
@@ -46,6 +49,8 @@ export default function LoginForm() {
     } catch (e) {
       console.error("error:", e);
       throw new Error("Failed to start authenticator registration.", e);
+    } finally {
+      loading.value = false;
     }
 
     if (attResp) {
@@ -81,9 +86,10 @@ export default function LoginForm() {
       />
       <button
         type="submit"
-        class="w-64 bg-slate-200 mt-4 h-10"
+        class="w-64 bg-slate-200 mt-4 h-10 relative"
       >
         Zaloguj
+        {loading.value && <SvgIcon name="clock" />}
       </button>
     </form>
   );
