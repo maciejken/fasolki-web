@@ -1,7 +1,23 @@
 import { JSX } from "preact/jsx-runtime";
+import { IconName, SvgIconProps } from "./types.ts";
 
-type IconName = "clock" | "error-circle" | "error-shield";
 const Icons: Record<IconName, JSX.Element> = {
+  check: (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className="w-6 h-6"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="m4.5 12.75 6 6 9-13.5"
+      />
+    </svg>
+  ),
   clock: (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -51,11 +67,6 @@ const Icons: Record<IconName, JSX.Element> = {
     </svg>
   ),
 };
-
-interface SvgIconProps {
-  name: IconName;
-  position?: "left" | "right";
-}
 
 export default function SvgIcon({ name, position }: SvgIconProps) {
   return (

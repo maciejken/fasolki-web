@@ -1,7 +1,9 @@
 import { useSignal } from "@preact/signals";
 import { JSX } from "preact/jsx-runtime";
 import { startRegistration } from "npm:@simplewebauthn/browser";
-import SvgIcon from "../components/SvgIcon.tsx";
+import SvgIcon from "../components/SvgIcon/SvgIcon.tsx";
+import { IconName } from "../components/SvgIcon/types.ts";
+import getStatusIconName from "../components/SvgIcon/helpers/getStatusIconName.ts";
 
 const apiUrl = "https://flat-mouse-55.deno.dev";
 // const apiUrl = "http://localhost:4000";
@@ -15,6 +17,12 @@ export default function SignupForm() {
   const loading = useSignal(false);
   const hasError = useSignal(false);
   const hasSuccess = useSignal(false);
+
+  const iconName: IconName | null = getStatusIconName({
+    isLoading: loading.value,
+    hasError: hasError.value,
+    hasSuccess: hasSuccess.value,
+  });
 
   const handleFirstnameInput = (
     evt: JSX.TargetedEvent<HTMLInputElement, InputEvent>,
@@ -65,7 +73,7 @@ export default function SignupForm() {
 
     try {
       loading.value = true;
-      const newUserResponse = await fetch(`${apiUrl}/register`, {
+      const newUserResponse = await fetch(`${apiUrl}/registration`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -83,7 +91,7 @@ export default function SignupForm() {
       console.log(newUser);
 
       Authorization = `Basic ${btoa(`${email.value}:${password.value}`)}`;
-      const response = await fetch(`${apiUrl}/register/options`, {
+      const response = await fetch(`${apiUrl}/registration/options`, {
         headers: {
           Authorization,
         },
@@ -104,14 +112,17 @@ export default function SignupForm() {
     }
 
     if (attResp) {
-      const verificationResp = await fetch(`${apiUrl}/register/authenticator`, {
-        method: "POST",
-        headers: {
-          Authorization,
-          "Content-Type": "application/json",
+      const verificationResp = await fetch(
+        `${apiUrl}/registration/authenticator`,
+        {
+          method: "POST",
+          headers: {
+            Authorization,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(attResp),
         },
-        body: JSON.stringify(attResp),
-      });
+      );
 
       const verificationJson = await verificationResp.json();
       console.log("verification json:", verificationJson);
@@ -170,9 +181,8 @@ export default function SignupForm() {
         type="submit"
         class="w-64 bg-slate-200 mt-4 h-10 relative"
       >
-        {hasError.value && <SvgIcon name="error-shield" position="left" />}
         Wyślij
-        {loading.value && <SvgIcon name="clock" position="right" />}
+        {iconName && <SvgIcon name={iconName} />}
       </button>
     </form>
   );
