@@ -1,6 +1,6 @@
 import { useSignal } from "@preact/signals";
 import { JSX } from "preact/jsx-runtime";
-import { startAuthentication } from "npm:@simplewebauthn/browser";
+import { startAuthentication } from "npm:@simplewebauthn/browser@9.0.0";
 import SvgIcon from "../components/SvgIcon/SvgIcon.tsx";
 import { IconName } from "../components/SvgIcon/types.ts";
 import getStatusIconName from "../components/SvgIcon/helpers/getStatusIconName.ts";
