@@ -14,6 +14,7 @@ export default function SignupForm() {
   const email = useSignal("");
   const password = useSignal("");
   const phone = useSignal("");
+  const shouldUseRoamingKey = useSignal(false);
   const loading = useSignal(false);
   const hasError = useSignal(false);
   const hasSuccess = useSignal(false);
@@ -54,6 +55,12 @@ export default function SignupForm() {
     phone.value = evt.currentTarget.value;
   };
 
+  const handleRoamingKeyChange = (
+    evt: JSX.TargetedEvent<HTMLInputElement, InputEvent>,
+  ) => {
+    shouldUseRoamingKey.value = evt.currentTarget.checked;
+  };
+
   const handleSignup = async (
     evt: JSX.TargetedEvent<HTMLFormElement, SubmitEvent>,
   ) => {
@@ -91,11 +98,16 @@ export default function SignupForm() {
       console.log(newUser);
 
       Authorization = `Basic ${btoa(`${email.value}:${password.value}`)}`;
-      const response = await fetch(`${apiUrl}/registration/options`, {
-        headers: {
-          Authorization,
+      const response = await fetch(
+        `${apiUrl}/registration/options?${new URLSearchParams({
+          platform: shouldUseRoamingKey.value ? "false" : "true",
+        })}`,
+        {
+          headers: {
+            Authorization,
+          },
         },
-      });
+      );
       const registrationOptions = await response.json();
       console.log("registration options:", JSON.stringify(registrationOptions));
 
@@ -174,9 +186,18 @@ export default function SignupForm() {
         type="text"
         name="phone"
         placeholder="telefon"
-        class="w-64 border-b-2 mb-2 h-10 p-1"
+        class="w-64 border-b-2 mb-3 h-10 p-1"
         onInput={handlePhoneInput}
       />
+      <label class="px-1">
+        <input
+          type="checkbox"
+          checked={shouldUseRoamingKey.value}
+          class="mr-1"
+          onChange={handleRoamingKeyChange}
+        />
+        Użyj klucza U2F
+      </label>
       <button
         type="submit"
         class="w-64 bg-slate-200 mt-4 h-10 relative"
