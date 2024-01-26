@@ -67,25 +67,25 @@ export default function LoginForm() {
 
       if (attResp) {
         hasSuccess.value = true;
-        // const verificationResp = await fetch(
-        //   `${apiUrl}/register/authenticator`,
-        //   {
-        //     method: "POST",
-        //     headers: {
-        //       Authorization,
-        //       "Content-Type": "application/json",
-        //     },
-        //     body: JSON.stringify(attResp),
-        //   },
-        // );
+        const verificationResp = await fetch(
+          `${apiUrl}/authentication/info`,
+          {
+            method: "POST",
+            headers: {
+              Authorization,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(attResp),
+          },
+        );
 
-        //   const verificationJson = await verificationResp.json();
-        //   console.log("verification json:", verificationJson);
+        const verificationJson = await verificationResp.json();
+        console.log("verification json:", verificationJson);
       }
     } catch (e) {
       console.error("error:", e);
       hasError.value = true;
-      throw new Error("Failed to start authenticator registration.", e);
+      throw new Error("Failed to authenticate.", e);
     } finally {
       loading.value = false;
     }
