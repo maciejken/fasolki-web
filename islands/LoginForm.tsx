@@ -4,6 +4,8 @@ import { startAuthentication } from "@simplewebauthn/browser";
 import SvgIcon from "../components/SvgIcon/SvgIcon.tsx";
 import { IconName } from "../components/SvgIcon/types.ts";
 import getStatusIconName from "../components/SvgIcon/helpers/getStatusIconName.ts";
+import { basicAuth, isAuthenticated } from "../utils/auth/state.ts";
+import AuthenticatorForm from "./AuthenticatorForm.tsx";
 
 const apiUrl = "https://flat-mouse-55.deno.dev";
 // const apiUrl = "http://localhost:4000";
@@ -18,7 +20,6 @@ export default function LoginForm() {
   const iconName: IconName | null = getStatusIconName({
     isLoading: loading.value,
     hasError: hasError.value,
-    hasSuccess: hasSuccess.value,
   });
 
   const handleEmailInput = (
@@ -38,23 +39,25 @@ export default function LoginForm() {
   ) => {
     evt.preventDefault();
     hasError.value = false;
+    const hasMissingData = !basicAuth.value && !(email.value && password.value);
 
-    if (
-      !email.value || !password.value
-    ) {
+    if (hasMissingData) {
       hasError.value = true;
       throw new Error("Some data is missing.");
+    }
+
+    if (!basicAuth.value) {
+      basicAuth.value = `Basic ${btoa(`${email.value}:${password.value}`)}`;
     }
 
     console.log("start authentication", email.value, password.value);
     let response: Response;
     let attResp;
-    const Authorization = `Basic ${btoa(`${email.value}:${password.value}`)}`;
     try {
       loading.value = true;
       response = await fetch(`${apiUrl}/authentication/options`, {
         headers: {
-          Authorization,
+          Authorization: basicAuth.value,
         },
       });
       const authOptions = await response.json();
@@ -72,7 +75,7 @@ export default function LoginForm() {
           {
             method: "POST",
             headers: {
-              Authorization,
+              Authorization: basicAuth.value,
               "Content-Type": "application/json",
             },
             body: JSON.stringify(attResp),
@@ -81,6 +84,7 @@ export default function LoginForm() {
 
         const verificationJson = await verificationResp.json();
         console.log("verification json:", verificationJson);
+        isAuthenticated.value = verificationJson.userVerified;
       }
     } catch (e) {
       console.error("error:", e);
@@ -88,8 +92,15 @@ export default function LoginForm() {
       throw new Error("Failed to authenticate.", e);
     } finally {
       loading.value = false;
+      console.log("auth state:", isAuthenticated.value);
     }
   };
+
+  if (isAuthenticated.value) {
+    return <div class="mt-8">
+      <AuthenticatorForm />
+    </div>
+  }
 
   return (
     <form onSubmit={handleLogin}>

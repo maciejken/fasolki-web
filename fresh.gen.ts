@@ -9,6 +9,7 @@ import * as $greet_name_ from "./routes/greet/[name].tsx";
 import * as $index from "./routes/index.tsx";
 import * as $login from "./routes/login.tsx";
 import * as $signup from "./routes/signup.tsx";
+import * as $AuthenticatorForm from "./islands/AuthenticatorForm.tsx";
 import * as $Counter from "./islands/Counter.tsx";
 import * as $LoginForm from "./islands/LoginForm.tsx";
 import * as $SignupForm from "./islands/SignupForm.tsx";
@@ -25,6 +26,7 @@ const manifest = {
     "./routes/signup.tsx": $signup,
   },
   islands: {
+    "./islands/AuthenticatorForm.tsx": $AuthenticatorForm,
     "./islands/Counter.tsx": $Counter,
     "./islands/LoginForm.tsx": $LoginForm,
     "./islands/SignupForm.tsx": $SignupForm,

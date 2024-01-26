@@ -1,9 +1,11 @@
 import { useSignal } from "@preact/signals";
 import { JSX } from "preact/jsx-runtime";
-import { startRegistration } from "@simplewebauthn/browser";
 import SvgIcon from "../components/SvgIcon/SvgIcon.tsx";
 import { IconName } from "../components/SvgIcon/types.ts";
 import getStatusIconName from "../components/SvgIcon/helpers/getStatusIconName.ts";
+import { basicAuth, isAuthenticated } from "../utils/auth/state.ts";
+import registerAuthenticator from "../utils/auth/registerAuthenticator.ts";
+import AuthenticatorForm from "./AuthenticatorForm.tsx";
 
 const apiUrl = "https://flat-mouse-55.deno.dev";
 // const apiUrl = "http://localhost:4000";
@@ -14,15 +16,13 @@ export default function SignupForm() {
   const email = useSignal("");
   const password = useSignal("");
   const phone = useSignal("");
-  const shouldUseRoamingKey = useSignal(false);
+  const platform = useSignal(true);
   const loading = useSignal(false);
   const hasError = useSignal(false);
-  const hasSuccess = useSignal(false);
 
   const iconName: IconName | null = getStatusIconName({
     isLoading: loading.value,
     hasError: hasError.value,
-    hasSuccess: hasSuccess.value,
   });
 
   const handleFirstnameInput = (
@@ -55,10 +55,10 @@ export default function SignupForm() {
     phone.value = evt.currentTarget.value;
   };
 
-  const handleRoamingKeyChange = (
+  const handleAuthTypeChange = (
     evt: JSX.TargetedEvent<HTMLInputElement, InputEvent>,
   ) => {
-    shouldUseRoamingKey.value = evt.currentTarget.checked;
+    platform.value = evt.currentTarget.checked;
   };
 
   const handleSignup = async (
@@ -66,17 +66,17 @@ export default function SignupForm() {
   ) => {
     evt.preventDefault();
     hasError.value = false;
+    isAuthenticated.value = false;
+    const hasMissingData = !basicAuth.value && !(firstname.value && lastname.value && email.value && password.value);
 
-    if (
-      !firstname.value || !lastname.value || !email.value || !password.value
-    ) {
+    if (hasMissingData) {
       hasError.value = true;
       throw new Error("Some data is missing.");
     }
 
-    console.log("start registration", email.value, password.value);
-    let attResp;
-    let Authorization;
+    if (!basicAuth.value) {
+      basicAuth.value = `Basic ${btoa(`${email.value}:${password.value}`)}`;
+    }
 
     try {
       loading.value = true;
@@ -97,57 +97,30 @@ export default function SignupForm() {
 
       console.log(newUser);
 
-      Authorization = `Basic ${btoa(`${email.value}:${password.value}`)}`;
-      const response = await fetch(
-        `${apiUrl}/registration/options?${new URLSearchParams({
-          platform: shouldUseRoamingKey.value ? "false" : "true",
-        })}`,
-        {
-          headers: {
-            Authorization,
-          },
-        },
-      );
-      const registrationOptions = await response.json();
-      console.log("registration options:", JSON.stringify(registrationOptions));
-
-      if (registrationOptions) {
-        attResp = await startRegistration(registrationOptions);
-        console.log("device attestation:", attResp);
-      }
+      isAuthenticated.value = await registerAuthenticator(basicAuth.value, platform.value);
     } catch (e) {
       console.error("error:", e);
       hasError.value = true;
-      throw new Error("Failed to start authenticator registration.", e);
+      throw new Error("Registration failed.", e);
     } finally {
       loading.value = false;
     }
-
-    if (attResp) {
-      const verificationResp = await fetch(
-        `${apiUrl}/registration/authenticator`,
-        {
-          method: "POST",
-          headers: {
-            Authorization,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(attResp),
-        },
-      );
-
-      const verificationJson = await verificationResp.json();
-      console.log("verification json:", verificationJson);
-      hasSuccess.value = true;
-    }
   };
 
-  if (hasSuccess.value) {
+  if (isAuthenticated.value) {
     return (
-      <div class="w-64 mt-4">
-        <a href="/login">
-          Przejdź do strony logowania
-        </a>
+      <div class="mt-8">
+
+        <p class="mb-8">
+          <a href="/login">
+            Przejdź do strony logowania
+          </a>
+        </p>
+
+        <p class="my-1">
+          <AuthenticatorForm />
+        </p>
+
       </div>
     );
   }
@@ -192,11 +165,11 @@ export default function SignupForm() {
       <label class="px-1">
         <input
           type="checkbox"
-          checked={shouldUseRoamingKey.value}
+          checked={platform.value}
           class="mr-1"
-          onChange={handleRoamingKeyChange}
+          onChange={handleAuthTypeChange}
         />
-        Użyj klucza U2F
+        Użyj klucza wbudowanego
       </label>
       <button
         type="submit"
