@@ -18,6 +18,7 @@
     "@preact/signals": "https://esm.sh/*@preact/signals@1.2.1",
     "@preact/signals-core": "https://esm.sh/*@preact/signals-core@1.5.0",
     "@simplewebauthn/browser": "npm:@simplewebauthn/browser@9.0.1",
+    "@simplewebauthn/types": "npm:@simplewebauthn/types@9.0.1",
     "tailwindcss": "npm:tailwindcss@3.3.5",
     "tailwindcss/": "npm:/tailwindcss@3.3.5/",
     "tailwindcss/plugin": "npm:/tailwindcss@3.3.5/plugin.js",

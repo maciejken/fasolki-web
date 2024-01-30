@@ -9,10 +9,9 @@ import * as $greet_name_ from "./routes/greet/[name].tsx";
 import * as $index from "./routes/index.tsx";
 import * as $login from "./routes/login.tsx";
 import * as $signup from "./routes/signup.tsx";
-import * as $AuthenticatorForm from "./islands/AuthenticatorForm.tsx";
+import * as $Authentication from "./islands/Authentication.tsx";
 import * as $Counter from "./islands/Counter.tsx";
-import * as $LoginForm from "./islands/LoginForm.tsx";
-import * as $SignupForm from "./islands/SignupForm.tsx";
+import * as $Registration from "./islands/Registration.tsx";
 import { type Manifest } from "$fresh/server.ts";
 
 const manifest = {
@@ -26,10 +25,9 @@ const manifest = {
     "./routes/signup.tsx": $signup,
   },
   islands: {
-    "./islands/AuthenticatorForm.tsx": $AuthenticatorForm,
+    "./islands/Authentication.tsx": $Authentication,
     "./islands/Counter.tsx": $Counter,
-    "./islands/LoginForm.tsx": $LoginForm,
-    "./islands/SignupForm.tsx": $SignupForm,
+    "./islands/Registration.tsx": $Registration,
   },
   baseUrl: import.meta.url,
 } satisfies Manifest;
