@@ -1,43 +1,60 @@
 import { apiUrl } from "../config.ts";
-import { Handlers, PageProps } from "$fresh/server.ts";
-import { getAuthenticationOptions, getAuthenticationToken, getBasicAuth } from "../utils/auth/authService.ts";
+import { Handlers } from "$fresh/server.ts";
+import {
+  getAuthenticationToken,
+  getBasicAuth,
+} from "../utils/auth/authService.ts";
 import SvgIcon from "../components/SvgIcon/SvgIcon.tsx";
 import Authentication from "../islands/Authentication.tsx";
-import { email, password, authenticationToken, hasError, isAuthenticated } from "../utils/auth/state.ts";
+import {
+  authenticationToken,
+  email,
+  hasError,
+  isAuthenticated,
+  password,
+} from "../utils/auth/state.ts";
 
 export const handler: Handlers = {
-  async POST(req, ctx): Response {
+  async POST(req, ctx): Promise<Response> {
     const data = new URLSearchParams(await req.text());
     email.value = data.get("email");
     password.value = data.get("password");
+    authenticationToken.value = data.get("auth_token");
     hasError.value = false;
 
+    const hasAuthData = !!(email.value && password.value) ||
+      !!authenticationToken.value;
+
     try {
-      if (!email.value || !password.value) {
+      if (!hasAuthData) {
         hasError.value = true;
-        throw new Error("missing email or password.");
+        throw new Error("missing authentication data.");
       }
-      const basicAuth = getBasicAuth(email.value, password.value);
-      const { token } = await getAuthenticationToken(apiUrl, basicAuth);
-      authenticationToken.value = token;
+      if (!authenticationToken.value) {
+        const basicAuth = getBasicAuth(email.value, password.value);
+        const { token } = await getAuthenticationToken(apiUrl!, basicAuth);
+        authenticationToken.value = token;
+      }
     } catch (e) {
       hasError.value = true;
       console.error("Failed to get authentication options:", e);
     }
 
     return ctx.render();
-  }
+  },
 };
 
 export default function Login() {
   if (authenticationToken.value) {
-    return <div class="container mx-auto w-64">
-      <Authentication
-        apiUrl={apiUrl}
-        token={authenticationToken}
-        isAuthenticated={isAuthenticated}
-      />
-    </div>
+    return (
+      <div class="container mx-auto w-64">
+        <Authentication
+          apiUrl={apiUrl!}
+          token={authenticationToken}
+          isAuthenticated={isAuthenticated}
+        />
+      </div>
+    );
   }
 
   return (
@@ -58,6 +75,11 @@ export default function Login() {
           class="w-64  border-b-2 mb-2 h-10 p-1"
           value={password.value}
           autocomplete="current-password"
+        />
+        <input
+          type="hidden"
+          name="auth_token"
+          value={authenticationToken.value}
         />
         <button
           type="submit"

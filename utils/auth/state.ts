@@ -1,5 +1,4 @@
 import { signal } from "@preact/signals";
-import { PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/types";
 
 export const email = signal<string>("");
 export const password = signal<string>("");
