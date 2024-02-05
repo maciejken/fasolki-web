@@ -1,5 +1,5 @@
 import { apiUrl } from "../config.ts";
-import { Handlers } from "$fresh/server.ts";
+import { FreshContext, Handlers } from "$fresh/server.ts";
 import {
   getAuthenticationToken,
   getBasicAuth,
@@ -14,33 +14,47 @@ import {
   password,
 } from "../utils/auth/state.ts";
 
+async function renderLogin(
+  ctx: FreshContext,
+  data: URLSearchParams,
+): Promise<Response> {
+  hasError.value = false;
+
+  email.value = data.get("email") || "";
+  password.value = data.get("password") || "";
+  authenticationToken.value = data.get("auth_token") || "";
+
+  const hasAuthData = !!(email.value && password.value) ||
+    !!authenticationToken.value;
+
+  try {
+    if (!hasAuthData) {
+      hasError.value = true;
+      throw new Error("missing authentication data.");
+    }
+    if (!authenticationToken.value) {
+      const basicAuth = getBasicAuth(email.value, password.value);
+      const { token } = await getAuthenticationToken(apiUrl!, basicAuth);
+      authenticationToken.value = token;
+    }
+  } catch (e) {
+    hasError.value = true;
+    console.error("Failed to get authentication options:", e);
+  }
+
+  return ctx.render();
+}
+
 export const handler: Handlers = {
+  GET(req: Request, ctx: FreshContext): Promise<Response> {
+    const data = new URL(req.url).searchParams;
+
+    return renderLogin(ctx, data);
+  },
   async POST(req, ctx): Promise<Response> {
     const data = new URLSearchParams(await req.text());
-    email.value = data.get("email");
-    password.value = data.get("password");
-    authenticationToken.value = data.get("auth_token");
-    hasError.value = false;
 
-    const hasAuthData = !!(email.value && password.value) ||
-      !!authenticationToken.value;
-
-    try {
-      if (!hasAuthData) {
-        hasError.value = true;
-        throw new Error("missing authentication data.");
-      }
-      if (!authenticationToken.value) {
-        const basicAuth = getBasicAuth(email.value, password.value);
-        const { token } = await getAuthenticationToken(apiUrl!, basicAuth);
-        authenticationToken.value = token;
-      }
-    } catch (e) {
-      hasError.value = true;
-      console.error("Failed to get authentication options:", e);
-    }
-
-    return ctx.render();
+    return renderLogin(ctx, data);
   },
 };
 
