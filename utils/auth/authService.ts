@@ -1,5 +1,8 @@
 import { PublicKeyCredentialCreationOptionsJSON } from "@simplewebauthn/types";
-import { startRegistration, startAuthentication } from "@simplewebauthn/browser";
+import {
+  startAuthentication,
+  startRegistration,
+} from "@simplewebauthn/browser";
 
 export function getBasicAuth(email: string, password: string) {
   return `Basic ${btoa(`${email}:${password}`)}`;
@@ -9,17 +12,20 @@ export async function getRegistrationToken(apiUrl: string, basicAuth: string) {
   const response = await fetch(`${apiUrl}/registration/token`, {
     headers: {
       Authorization: basicAuth,
-    }
-  })
+    },
+  });
   return response.json();
 }
 
-export async function getAuthenticationToken(apiUrl: string, basicAuth: string) {
+export async function getAuthenticationToken(
+  apiUrl: string,
+  basicAuth: string,
+) {
   const response = await fetch(`${apiUrl}/authentication/token`, {
     headers: {
       Authorization: basicAuth,
-    }
-  })
+    },
+  });
   return response.json();
 }
 
@@ -70,8 +76,10 @@ export async function getRegistrationOptions({
   apiUrl: string;
   auth: string;
   platform: boolean;
-}): PublicKeyCredentialCreationOptionsJSON {
-  const url = `${apiUrl}/registration/options?${new URLSearchParams({ platform })}`;
+}): Promise<PublicKeyCredentialCreationOptionsJSON> {
+  const url = `${apiUrl}/registration/options?${new URLSearchParams({
+    platform: String(platform),
+  })}`;
   const response = await fetch(url, {
     headers: {
       Authorization: auth,
@@ -83,7 +91,7 @@ export async function getRegistrationOptions({
 export async function registerAuthenticator({
   apiUrl,
   platform,
-  token  
+  token,
 }: {
   apiUrl: string;
   platform: boolean;
@@ -91,20 +99,20 @@ export async function registerAuthenticator({
 }) {
   const auth = `Bearer ${token}`;
 
-    try {
-      const options = await getRegistrationOptions({
-        apiUrl,
-        auth,
-        platform
-      });
-      const attestation = await startRegistration(options);
-      let registrationInfo;
+  try {
+    const options = await getRegistrationOptions({
+      apiUrl,
+      auth,
+      platform,
+    });
+    const attestation = await startRegistration(options);
+    let registrationInfo;
 
     if (attestation) {
       registrationInfo = await getRegistrationInfo({
         apiUrl,
         auth,
-        attestation
+        attestation,
       });
     }
 
@@ -118,7 +126,10 @@ export async function registerAuthenticator({
   }
 }
 
-export async function authenticate(apiUrl: string, token: string): Promise<boolean> {
+export async function authenticate(
+  apiUrl: string,
+  token: string,
+): Promise<string | undefined> {
   const auth = `Bearer ${token}`;
   try {
     const options = await getAuthenticationOptions(apiUrl, auth);
@@ -129,7 +140,7 @@ export async function authenticate(apiUrl: string, token: string): Promise<boole
       authenticationInfo = await getAuthenticationInfo({
         apiUrl,
         auth,
-        attestation
+        attestation,
       });
     }
 
@@ -137,7 +148,7 @@ export async function authenticate(apiUrl: string, token: string): Promise<boole
       console.log("authentication info:", authenticationInfo);
     }
 
-    return !!authenticationInfo?.userVerified;
+    return authenticationInfo?.token;
   } catch (e) {
     throw new Error("Failed to authenticate.", e);
   }

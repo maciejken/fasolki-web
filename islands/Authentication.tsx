@@ -1,26 +1,25 @@
 import { Signal, useSignal } from "@preact/signals";
-import { startAuthentication } from "@simplewebauthn/browser";
-import { PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/types";
-import { authenticationOptions, isAuthenticated } from "../utils/auth/state.ts";
 import { authenticate } from "../utils/auth/authService.ts";
 import SvgIcon from "../components/SvgIcon/SvgIcon.tsx";
-import getStatusIconName from  "../components/SvgIcon/helpers/getStatusIconName.ts";
+import getStatusIconName from "../components/SvgIcon/helpers/getStatusIconName.ts";
 
 interface AuthenticationProps {
   apiUrl: string;
+  targetOrigin: string;
   token: Signal<string>;
   isAuthenticated: Signal<boolean>;
 }
 
-export default function Authentication({ apiUrl, token, isAuthenticated }: AuthenticationProps) {
+export default function Authentication(
+  { apiUrl, targetOrigin, token, isAuthenticated }: AuthenticationProps,
+) {
   const hasError = useSignal(false);
   const isLoading = useSignal(false);
-  const platform = useSignal(true);
 
   const iconName = getStatusIconName({
     isLoading: isLoading.value,
     hasError: hasError.value,
-    hasSuccess: isAuthenticated.value
+    hasSuccess: isAuthenticated.value,
   });
 
   const handleAuthentication = async (evt) => {
@@ -30,7 +29,18 @@ export default function Authentication({ apiUrl, token, isAuthenticated }: Authe
     try {
       isLoading.value = true;
       hasError.value = false;
-      isAuthenticated.value = await authenticate(apiUrl, token);
+      const genericToken: string | undefined = await authenticate(
+        apiUrl,
+        token,
+      );
+      isAuthenticated.value = !!genericToken;
+
+      const message = {
+        type: token ? "AUTH_SUCCESS" : "AUTH_ERROR",
+        data: genericToken,
+      };
+
+      window.postMessage(message, targetOrigin);
     } catch (e) {
       hasError.value = true;
       throw new Error("Failed to authenticate.", e);
@@ -50,4 +60,4 @@ export default function Authentication({ apiUrl, token, isAuthenticated }: Authe
       </button>
     </form>
   );
-};
+}
