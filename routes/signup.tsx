@@ -1,20 +1,28 @@
 import { Handlers, PageProps } from "$fresh/server.ts";
 import SvgIcon from "../components/SvgIcon/SvgIcon.tsx";
 import Registration from "../islands/Registration.tsx";
-import { getBasicAuth, getRegistrationToken } from "../utils/auth/authService.ts";
+import {
+  getBasicAuth,
+  getRegistrationToken,
+} from "../utils/auth/authService.ts";
 import { apiUrl } from "../config.ts";
-import { email, password, isRegistered, registrationToken } from "../utils/auth/state.ts";
-import { firstName, lastName, phone, hasError } from "../utils/user/state.ts";
+import {
+  email,
+  isRegistered,
+  password,
+  registrationToken,
+} from "../utils/auth/state.ts";
+import { firstName, hasError, lastName, phone } from "../utils/user/state.ts";
 import createUser from "../utils/user/createUser.ts";
 
 export const handler: Handlers = {
-  async POST(req, ctx): Response {
+  async POST(req, ctx): Promise<Response> {
     const data = new URLSearchParams(await req.text());
-    firstName.value = data.get("firstname");
-    lastName.value = data.get("lastname");
-    email.value = data.get("email");
-    password.value = data.get("password");
-    phone.value = data.get("phone");
+    firstName.value = data.get("firstname") || "";
+    lastName.value = data.get("lastname") || "";
+    email.value = data.get("email") || "";
+    password.value = data.get("password") || "";
+    phone.value = data.get("phone") || "";
     hasError.value = false;
 
     try {
@@ -28,11 +36,11 @@ export const handler: Handlers = {
         password: password.value,
         firstName: firstName.value,
         lastName: lastName.value,
-        phone: phone.value
+        phone: phone.value,
       });
 
       const basicAuth = getBasicAuth(email.value, password.value);
-      const { token } = await getRegistrationToken(apiUrl, basicAuth);
+      const { token } = await getRegistrationToken(apiUrl!, basicAuth);
       registrationToken.value = token;
     } catch (e) {
       hasError.value = true;
@@ -41,7 +49,7 @@ export const handler: Handlers = {
     }
 
     return ctx.render();
-  }
+  },
 };
 
 export default function Signup() {
@@ -49,9 +57,8 @@ export default function Signup() {
     return (
       <div class="container mx-auto w-64">
         <Registration
-          apiUrl={apiUrl}
+          apiUrl={apiUrl!}
           token={registrationToken}
-          platform={platform}
           isRegistered={isRegistered}
         />
       </div>

@@ -2,6 +2,7 @@ import { Signal, useSignal } from "@preact/signals";
 import { authenticate } from "../utils/auth/authService.ts";
 import SvgIcon from "../components/SvgIcon/SvgIcon.tsx";
 import getStatusIconName from "../components/SvgIcon/helpers/getStatusIconName.ts";
+import { JSX } from "preact/jsx-runtime";
 
 interface AuthenticationProps {
   apiUrl: string;
@@ -22,16 +23,15 @@ export default function Authentication(
     hasSuccess: isAuthenticated.value,
   });
 
-  const handleAuthentication = async (evt) => {
+  const handleAuthentication = async (evt: JSX.TargetedEvent) => {
     evt.preventDefault();
-    const auth = `Bearer ${token.value}`;
-    console.log("auth token:", token.value);
+
     try {
       isLoading.value = true;
       hasError.value = false;
       const genericToken: string | undefined = await authenticate(
         apiUrl,
-        token,
+        token.value,
       );
       isAuthenticated.value = !!genericToken;
 

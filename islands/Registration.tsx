@@ -1,10 +1,8 @@
 import { Signal, useSignal } from "@preact/signals";
-import { startRegistration } from "@simplewebauthn/browser";
-import { PublicKeyCredentialCreationOptionsJSON } from "@simplewebauthn/types";
 import { registerAuthenticator } from "../utils/auth/authService.ts";
-import { email, password, registrationOptions } from "../utils/auth/state.ts";
 import SvgIcon from "../components/SvgIcon/SvgIcon.tsx";
-import getStatusIconName from  "../components/SvgIcon/helpers/getStatusIconName.ts";
+import getStatusIconName from "../components/SvgIcon/helpers/getStatusIconName.ts";
+import { JSX } from "preact/jsx-runtime";
 
 interface RegistrationProps {
   apiUrl: string;
@@ -12,7 +10,9 @@ interface RegistrationProps {
   isRegistered: Signal<boolean>;
 }
 
-export default function Registration({ apiUrl, token, isRegistered }: RegistrationProps) {
+export default function Registration(
+  { apiUrl, token, isRegistered }: RegistrationProps,
+) {
   const hasError = useSignal(false);
   const isLoading = useSignal(false);
   const platform = useSignal(true);
@@ -20,14 +20,16 @@ export default function Registration({ apiUrl, token, isRegistered }: Registrati
   const iconName = getStatusIconName({
     isLoading: isLoading.value,
     hasError: hasError.value,
-    hasSuccess: isRegistered.value
+    hasSuccess: isRegistered.value,
   });
 
-  const handlePlatformChange = (evt) => {
+  const handlePlatformChange = (evt: JSX.TargetedEvent<HTMLInputElement>) => {
     platform.value = evt.currentTarget.checked;
-  }
+  };
 
-  const handleRegistration = async (evt) => {
+  const handleRegistration = async (
+    evt: JSX.TargetedEvent<HTMLFormElement>,
+  ) => {
     evt.preventDefault();
     try {
       hasError.value = false;
@@ -35,7 +37,7 @@ export default function Registration({ apiUrl, token, isRegistered }: Registrati
       isRegistered.value = await registerAuthenticator({
         apiUrl,
         token: token.value,
-        platform: platform.value
+        platform: platform.value,
       });
     } catch (e) {
       isRegistered.value = false;
@@ -66,4 +68,4 @@ export default function Registration({ apiUrl, token, isRegistered }: Registrati
       </button>
     </form>
   );
-};
+}

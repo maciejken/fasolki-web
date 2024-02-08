@@ -116,10 +116,6 @@ export async function registerAuthenticator({
       });
     }
 
-    if (registrationInfo) {
-      console.log("registration info:", registrationInfo);
-    }
-
     return !!registrationInfo?.userVerified;
   } catch (e) {
     throw new Error("Failed to register new authenticator.", e);
@@ -142,10 +138,6 @@ export async function authenticate(
         auth,
         attestation,
       });
-    }
-
-    if (authenticationInfo) {
-      console.log("authentication info:", authenticationInfo);
     }
 
     return authenticationInfo?.token;
