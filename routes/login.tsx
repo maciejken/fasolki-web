@@ -1,4 +1,4 @@
-import { apiUrl } from "../config.ts";
+import { apiUrl, targetOrigin } from "../config.ts";
 import { FreshContext, Handlers } from "$fresh/server.ts";
 import {
   getAuthenticationToken,
@@ -46,11 +46,11 @@ async function renderLogin(
 }
 
 export const handler: Handlers = {
-  GET(req: Request, ctx: FreshContext): Promise<Response> {
-    const data = new URL(req.url).searchParams;
+  // GET(req: Request, ctx: FreshContext): Promise<Response> {
+  //   const data = new URL(req.url).searchParams;
 
-    return renderLogin(ctx, data);
-  },
+  //   return renderLogin(ctx, data);
+  // },
   async POST(req, ctx): Promise<Response> {
     const data = new URLSearchParams(await req.text());
 
@@ -64,6 +64,7 @@ export default function Login() {
       <div class="container mx-auto w-64">
         <Authentication
           apiUrl={apiUrl!}
+          targetOrigin={targetOrigin!}
           token={authenticationToken}
           isAuthenticated={isAuthenticated}
         />
