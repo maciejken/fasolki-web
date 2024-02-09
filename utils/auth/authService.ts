@@ -126,22 +126,22 @@ export async function authenticate(
   apiUrl: string,
   token: string,
 ): Promise<string | undefined> {
-  const auth = `Bearer ${token}`;
-  try {
-    const options = await getAuthenticationOptions(apiUrl, auth);
-    const attestation = await startAuthentication(options);
-    let authenticationInfo;
-
-    if (attestation) {
-      authenticationInfo = await getAuthenticationInfo({
-        apiUrl,
-        auth,
-        attestation,
-      });
-    }
-
-    return authenticationInfo?.token;
-  } catch (e) {
-    throw new Error("Failed to authenticate.", e);
+  if ("function" !== typeof navigator.credentials?.create) {
+    throw new Error("Webauthn not supported.");
   }
+
+  const auth = `Bearer ${token}`;
+  const options = await getAuthenticationOptions(apiUrl, auth);
+  const attestation = await startAuthentication(options);
+  let authenticationInfo;
+
+  if (attestation) {
+    authenticationInfo = await getAuthenticationInfo({
+      apiUrl,
+      auth,
+      attestation,
+    });
+  }
+
+  return authenticationInfo?.token;
 }

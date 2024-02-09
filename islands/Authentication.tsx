@@ -43,7 +43,7 @@ export default function Authentication(
       window.postMessage(message, targetOrigin);
     } catch (e) {
       hasError.value = true;
-      throw new Error("Failed to authenticate.", e);
+      throw new Error(`Failed to authenticate: ${e}`);
     } finally {
       isLoading.value = false;
     }
