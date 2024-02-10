@@ -110,7 +110,7 @@ export default function Login({ data }: PageProps<Data>) {
         </button>
         {mobile && (
           <a
-            href="https://app.example.com"
+            href="/fasolki"
             class="w-64 mt-4 h-10 py-2 flex justify-center bg-slate-50"
           >
             Fasolki
