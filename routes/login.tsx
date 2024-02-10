@@ -1,5 +1,5 @@
 import { apiUrl, targetOrigin } from "../config.ts";
-import { FreshContext, Handlers } from "$fresh/server.ts";
+import { FreshContext, Handlers, PageProps } from "$fresh/server.ts";
 import {
   getAuthenticationToken,
   getBasicAuth,
@@ -13,6 +13,10 @@ import {
   isAuthenticated,
   password,
 } from "../utils/auth/state.ts";
+
+interface Data {
+  mobile: boolean;
+}
 
 async function renderLogin(
   ctx: FreshContext,
@@ -45,12 +49,12 @@ async function renderLogin(
   return ctx.render();
 }
 
-export const handler: Handlers = {
-  // GET(req: Request, ctx: FreshContext): Promise<Response> {
-  //   const data = new URL(req.url).searchParams;
+export const handler: Handlers<Data> = {
+  GET(req: Request, ctx: FreshContext) {
+    const mobile = new URL(req.url).searchParams.get("mobile");
 
-  //   return renderLogin(ctx, data);
-  // },
+    return ctx.render({ mobile: !!mobile });
+  },
   async POST(req, ctx): Promise<Response> {
     const data = new URLSearchParams(await req.text());
 
@@ -58,7 +62,8 @@ export const handler: Handlers = {
   },
 };
 
-export default function Login() {
+export default function Login({ data }: PageProps<Data>) {
+  const { mobile } = data;
   if (authenticationToken.value) {
     return (
       <div class="container mx-auto w-64">
@@ -103,6 +108,14 @@ export default function Login() {
           Zaloguj
           {hasError.value && <SvgIcon name="error-shield" position="left" />}
         </button>
+        {mobile && (
+          <a
+            href="/fasolki"
+            class="w-64 mt-4 h-10 py-2 flex justify-center bg-slate-50"
+          >
+            Fasolki
+          </a>
+        )}
       </form>
     </div>
   );
