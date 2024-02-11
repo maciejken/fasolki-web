@@ -6,21 +6,22 @@ import { JSX } from "preact/jsx-runtime";
 
 interface AuthenticationProps {
   apiUrl: string;
-  targetOrigin: string;
+  appUrl: string;
   token: Signal<string>;
-  isAuthenticated: Signal<boolean>;
+  mobile?: string;
 }
 
 export default function Authentication(
-  { apiUrl, targetOrigin, token, isAuthenticated }: AuthenticationProps,
+  { apiUrl, appUrl, token, mobile }: AuthenticationProps,
 ) {
   const hasError = useSignal(false);
   const isLoading = useSignal(false);
+  const authToken = useSignal("");
 
   const iconName = getStatusIconName({
     isLoading: isLoading.value,
     hasError: hasError.value,
-    hasSuccess: isAuthenticated.value,
+    hasSuccess: !!authToken.value,
   });
 
   const handleAuthentication = async (evt: JSX.TargetedEvent) => {
@@ -33,14 +34,10 @@ export default function Authentication(
         apiUrl,
         token.value,
       );
-      isAuthenticated.value = !!genericToken;
 
-      const message = {
-        type: token ? "AUTH_SUCCESS" : "AUTH_ERROR",
-        data: genericToken,
-      };
-
-      window.postMessage(message, targetOrigin);
+      if (genericToken) {
+        authToken.value = genericToken;
+      }
     } catch (e) {
       hasError.value = true;
       throw new Error(`Failed to authenticate: ${e}`);
@@ -58,6 +55,17 @@ export default function Authentication(
         Użyj klucza
         {iconName && <SvgIcon name={iconName} position="left" />}
       </button>
+      {mobile && authToken.value && (
+        <a
+          href={`${appUrl}?${new URLSearchParams({
+            mobile,
+            token: authToken.value,
+          })}`}
+          class="w-64 mt-4 h-10 py-2 flex justify-center bg-slate-50"
+        >
+          Fasolki
+        </a>
+      )}
     </form>
   );
 }

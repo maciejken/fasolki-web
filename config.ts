@@ -1,5 +1,5 @@
 export const apiUrl = Deno.env.get("API_URL");
-export const targetOrigin = Deno.env.get("TARGET_ORIGIN");
+export const appUrl = Deno.env.get("APP_URL");
 
 console.debug("API_URL:", apiUrl);
-console.debug("TARGET_ORIGIN:", targetOrigin);
+console.debug("APP_URL:", appUrl);
