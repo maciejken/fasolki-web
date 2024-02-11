@@ -1,8 +1,18 @@
-import { PublicKeyCredentialCreationOptionsJSON } from "@simplewebauthn/types";
+import {
+  AuthenticationResponseJSON,
+  PublicKeyCredentialCreationOptionsJSON,
+  RegistrationResponseJSON,
+} from "@simplewebauthn/types";
 import {
   startAuthentication,
   startRegistration,
 } from "@simplewebauthn/browser";
+
+interface ValidationParams<T> {
+  apiUrl: string;
+  data: T;
+  auth: string;
+}
 
 export function getBasicAuth(email: string, password: string) {
   return `Basic ${btoa(`${email}:${password}`)}`;
@@ -38,7 +48,9 @@ export async function getAuthenticationOptions(apiUrl: string, auth: string) {
   return response.json();
 }
 
-export async function getAuthenticationInfo({ apiUrl, auth, attestation }) {
+export async function getAuthenticationInfo(
+  { apiUrl, auth, data }: ValidationParams<AuthenticationResponseJSON>,
+) {
   const response = await fetch(
     `${apiUrl}/authentication/info`,
     {
@@ -47,13 +59,15 @@ export async function getAuthenticationInfo({ apiUrl, auth, attestation }) {
         Authorization: auth,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(attestation),
+      body: JSON.stringify(data),
     },
   );
   return response.json();
 }
 
-export async function getRegistrationInfo({ apiUrl, attestation, auth }) {
+export async function getRegistrationInfo(
+  { apiUrl, data, auth }: ValidationParams<RegistrationResponseJSON>,
+) {
   const response = await fetch(
     `${apiUrl}/registration/info`,
     {
@@ -62,7 +76,7 @@ export async function getRegistrationInfo({ apiUrl, attestation, auth }) {
         Authorization: auth,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(attestation),
+      body: JSON.stringify(data),
     },
   );
   return response.json();
@@ -105,14 +119,16 @@ export async function registerAuthenticator({
       auth,
       platform,
     });
-    const attestation = await startRegistration(options);
+    const data: RegistrationResponseJSON = await startRegistration(
+      options,
+    );
     let registrationInfo;
 
-    if (attestation) {
+    if (data) {
       registrationInfo = await getRegistrationInfo({
         apiUrl,
         auth,
-        attestation,
+        data,
       });
     }
 
@@ -132,14 +148,16 @@ export async function authenticate(
 
   const auth = `Bearer ${token}`;
   const options = await getAuthenticationOptions(apiUrl, auth);
-  const attestation = await startAuthentication(options);
+  const data: AuthenticationResponseJSON = await startAuthentication(
+    options,
+  );
   let authenticationInfo;
 
-  if (attestation) {
+  if (data) {
     authenticationInfo = await getAuthenticationInfo({
       apiUrl,
       auth,
-      attestation,
+      data,
     });
   }
 
