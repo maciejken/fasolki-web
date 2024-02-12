@@ -52,32 +52,34 @@ export default function Registration(
 
   return (
     <form onSubmit={handleRegistration} class="mt-8">
-      <label class="px-1">
-        <input
-          type="checkbox"
-          checked={platform.value}
-          class="mr-1"
-          onChange={handlePlatformChange}
-        />
-        Użyj klucza wbudowanego
-      </label>
-      <button
-        type="submit"
-        class="w-64 bg-slate-200 mt-4 h-10 relative"
-      >
-        Dodaj klucz
-        {iconName && <SvgIcon name={iconName} position="left" />}
-      </button>
-      {mobile && (
-        <a
-          href={`${appUrl}?${new URLSearchParams({
-            mobile,
-          })}`}
-          class="w-64 mt-4 h-10 py-2 flex justify-center bg-slate-50"
+      <div class="flex-col">
+        <label class="px-1">
+          <input
+            type="checkbox"
+            checked={platform.value}
+            class="mr-1"
+            onChange={handlePlatformChange}
+          />
+          Użyj klucza wbudowanego
+        </label>
+        <button
+          type="submit"
+          class="w-64 bg-slate-200 mt-4 h-10 relative"
         >
-          Fasolki
-        </a>
-      )}
+          Dodaj klucz
+          {iconName && <SvgIcon name={iconName} position="left" />}
+        </button>
+        {mobile && (
+          <a
+            href={`${appUrl}?${new URLSearchParams({
+              mobile,
+            })}`}
+            class="w-64 mt-4 h-10 py-2 flex justify-center bg-slate-50"
+          >
+            Fasolki
+          </a>
+        )}
+      </div>
     </form>
   );
 }

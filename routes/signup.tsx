@@ -1,4 +1,4 @@
-import { Handlers, PageProps } from "$fresh/server.ts";
+import { FreshContext, Handlers, PageProps } from "$fresh/server.ts";
 import SvgIcon from "../components/SvgIcon/SvgIcon.tsx";
 import Registration from "../islands/Registration.tsx";
 import {
@@ -15,6 +15,10 @@ interface Data {
 }
 
 export const handler: Handlers = {
+  GET(req: Request, ctx: FreshContext) {
+    const mobile: string = new URL(req.url).searchParams.get("mobile") || "";
+    return ctx.render({ mobile });
+  },
   async POST(req, ctx): Promise<Response> {
     const data = new URLSearchParams(await req.text());
     const mobile: string = new URL(req.url).searchParams.get("mobile") || "";

@@ -48,24 +48,26 @@ export default function Authentication(
 
   return (
     <form onSubmit={handleAuthentication} class="flex gap-8 py-6">
-      <button
-        type="submit"
-        class="w-64 bg-slate-200 mt-4 h-10 relative"
-      >
-        Użyj klucza
-        {iconName && <SvgIcon name={iconName} position="left" />}
-      </button>
-      {mobile && authToken.value && (
-        <a
-          href={`${appUrl}?${new URLSearchParams({
-            mobile,
-            token: authToken.value,
-          })}`}
-          class="w-64 mt-4 h-10 py-2 flex justify-center bg-slate-50"
+      <div class="flex-col">
+        <button
+          type="submit"
+          class="w-64 bg-slate-200 mt-4 h-10 relative"
         >
-          Fasolki
-        </a>
-      )}
+          Użyj klucza
+          {iconName && <SvgIcon name={iconName} position="left" />}
+        </button>
+        {mobile && authToken.value && (
+          <a
+            href={`${appUrl}?${new URLSearchParams({
+              mobile,
+              token: authToken.value,
+            })}`}
+            class="w-64 mt-4 h-10 py-2 flex justify-center bg-slate-50"
+          >
+            Fasolki
+          </a>
+        )}
+      </div>
     </form>
   );
 }
