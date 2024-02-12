@@ -8,7 +8,7 @@ interface RegistrationProps {
   apiUrl: string;
   appUrl: string;
   token: Signal<string>;
-  mobile?: string;
+  mobile: boolean;
 }
 
 export default function Registration(
@@ -72,7 +72,7 @@ export default function Registration(
         {mobile && (
           <a
             href={`${appUrl}?${new URLSearchParams({
-              mobile,
+              mobile: mobile ? "true" : "false",
             })}`}
             class="w-64 mt-4 h-10 py-2 flex justify-center bg-slate-50"
           >

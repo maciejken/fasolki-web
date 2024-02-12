@@ -14,7 +14,7 @@ import {
 } from "../utils/auth/state.ts";
 
 interface Data {
-  mobile: string | undefined;
+  mobile: boolean;
 }
 
 async function renderLogin(
@@ -26,7 +26,7 @@ async function renderLogin(
   email.value = data.get("email") || "";
   password.value = data.get("password") || "";
   authenticationToken.value = data.get("auth_token") || "";
-  const mobile = data.get("mobile");
+  const mobile: string = data.get("mobile") || "";
 
   const hasAuthData = !!(email.value && password.value) ||
     !!authenticationToken.value;
@@ -46,14 +46,14 @@ async function renderLogin(
     console.error("Failed to get authentication options:", e);
   }
 
-  return ctx.render({ mobile });
+  return ctx.render({ mobile: mobile === "true" });
 }
 
 export const handler: Handlers<Data> = {
   GET(req: Request, ctx: FreshContext) {
     const mobile = new URL(req.url).searchParams.get("mobile");
 
-    return ctx.render({ mobile });
+    return ctx.render({ mobile: mobile === "true" });
   },
   async POST(req: Request, ctx: FreshContext): Promise<Response> {
     const data = new URLSearchParams(await req.text());

@@ -11,7 +11,7 @@ import { firstName, hasError, lastName, phone } from "../utils/user/state.ts";
 import createUser from "../utils/user/createUser.ts";
 
 interface Data {
-  mobile: string | undefined;
+  mobile: boolean;
 }
 
 export const handler: Handlers = {
@@ -52,7 +52,7 @@ export const handler: Handlers = {
       console.error("Failed to register authenticator:", e);
     }
 
-    return ctx.render({ mobile });
+    return ctx.render({ mobile: mobile === "true" });
   },
 };
 
