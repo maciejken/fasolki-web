@@ -10,7 +10,6 @@ import {
   authenticationToken,
   email,
   hasError,
-  isAuthenticated,
   password,
 } from "../utils/auth/state.ts";
 
@@ -27,6 +26,7 @@ async function renderLogin(
   email.value = data.get("email") || "";
   password.value = data.get("password") || "";
   authenticationToken.value = data.get("auth_token") || "";
+  const mobile = data.get("mobile");
 
   const hasAuthData = !!(email.value && password.value) ||
     !!authenticationToken.value;
@@ -46,7 +46,7 @@ async function renderLogin(
     console.error("Failed to get authentication options:", e);
   }
 
-  return ctx.render();
+  return ctx.render({ mobile });
 }
 
 export const handler: Handlers<Data> = {
@@ -55,8 +55,10 @@ export const handler: Handlers<Data> = {
 
     return ctx.render({ mobile });
   },
-  async POST(req, ctx): Promise<Response> {
+  async POST(req: Request, ctx: FreshContext): Promise<Response> {
     const data = new URLSearchParams(await req.text());
+    const mobile = new URL(req.url).searchParams.get("mobile");
+    data.set("mobile", mobile || "");
 
     return renderLogin(ctx, data);
   },

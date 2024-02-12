@@ -6,21 +6,23 @@ import { JSX } from "preact/jsx-runtime";
 
 interface RegistrationProps {
   apiUrl: string;
+  appUrl: string;
   token: Signal<string>;
-  isRegistered: Signal<boolean>;
+  mobile?: string;
 }
 
 export default function Registration(
-  { apiUrl, token, isRegistered }: RegistrationProps,
+  { apiUrl, appUrl, token, mobile }: RegistrationProps,
 ) {
   const hasError = useSignal(false);
+  const hasSuccess = useSignal(false);
   const isLoading = useSignal(false);
   const platform = useSignal(true);
 
   const iconName = getStatusIconName({
     isLoading: isLoading.value,
     hasError: hasError.value,
-    hasSuccess: isRegistered.value,
+    hasSuccess: hasSuccess.value,
   });
 
   const handlePlatformChange = (evt: JSX.TargetedEvent<HTMLInputElement>) => {
@@ -34,13 +36,13 @@ export default function Registration(
     try {
       hasError.value = false;
       isLoading.value = true;
-      isRegistered.value = await registerAuthenticator({
+      hasSuccess.value = await registerAuthenticator({
         apiUrl,
         token: token.value,
         platform: platform.value,
       });
     } catch (e) {
-      isRegistered.value = false;
+      hasSuccess.value = false;
       hasError.value = true;
       console.error("Registration failed:", e);
     } finally {
@@ -66,6 +68,16 @@ export default function Registration(
         Dodaj klucz
         {iconName && <SvgIcon name={iconName} position="left" />}
       </button>
+      {mobile && (
+        <a
+          href={`${appUrl}?${new URLSearchParams({
+            mobile,
+          })}`}
+          class="w-64 mt-4 h-10 py-2 flex justify-center bg-slate-50"
+        >
+          Fasolki
+        </a>
+      )}
     </form>
   );
 }

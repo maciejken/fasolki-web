@@ -5,19 +5,19 @@ import {
   getBasicAuth,
   getRegistrationToken,
 } from "../utils/auth/authService.ts";
-import { apiUrl } from "../config.ts";
-import {
-  email,
-  isRegistered,
-  password,
-  registrationToken,
-} from "../utils/auth/state.ts";
+import { apiUrl, appUrl } from "../config.ts";
+import { email, password, registrationToken } from "../utils/auth/state.ts";
 import { firstName, hasError, lastName, phone } from "../utils/user/state.ts";
 import createUser from "../utils/user/createUser.ts";
+
+interface Data {
+  mobile: string | undefined;
+}
 
 export const handler: Handlers = {
   async POST(req, ctx): Promise<Response> {
     const data = new URLSearchParams(await req.text());
+    const mobile: string = new URL(req.url).searchParams.get("mobile") || "";
     firstName.value = data.get("firstname") || "";
     lastName.value = data.get("lastname") || "";
     email.value = data.get("email") || "";
@@ -48,18 +48,21 @@ export const handler: Handlers = {
       console.error("Failed to register authenticator:", e);
     }
 
-    return ctx.render();
+    return ctx.render({ mobile });
   },
 };
 
-export default function Signup() {
+export default function Signup({ data }: PageProps<Data>) {
+  const { mobile } = data;
+
   if (registrationToken.value) {
     return (
       <div class="container mx-auto w-64">
         <Registration
           apiUrl={apiUrl!}
+          appUrl={appUrl!}
           token={registrationToken}
-          isRegistered={isRegistered}
+          mobile={mobile}
         />
       </div>
     );
