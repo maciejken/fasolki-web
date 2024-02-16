@@ -37,6 +37,7 @@ export default function Authentication(
 
       if (genericToken) {
         authToken.value = genericToken;
+        console.debug(genericToken);
       }
     } catch (e) {
       hasError.value = true;
