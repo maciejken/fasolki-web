@@ -9,10 +9,11 @@ interface AuthenticationProps {
   appUrl: string;
   token: Signal<string>;
   mobile: boolean;
+  publicKey?: string;
 }
 
 export default function Authentication(
-  { apiUrl, appUrl, token, mobile }: AuthenticationProps,
+  { apiUrl, appUrl, token, mobile, publicKey }: AuthenticationProps,
 ) {
   const hasError = useSignal(false);
   const isLoading = useSignal(false);
@@ -33,6 +34,7 @@ export default function Authentication(
       const genericToken: string | undefined = await authenticate(
         apiUrl,
         token.value,
+        publicKey,
       );
 
       if (genericToken) {

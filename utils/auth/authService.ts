@@ -49,7 +49,9 @@ export async function getAuthenticationOptions(apiUrl: string, auth: string) {
 }
 
 export async function getAuthenticationInfo(
-  { apiUrl, auth, data }: ValidationParams<AuthenticationResponseJSON>,
+  { apiUrl, auth, data }: ValidationParams<
+    AuthenticationResponseJSON & { publicKey?: string }
+  >,
 ) {
   const response = await fetch(
     `${apiUrl}/authentication/info`,
@@ -141,6 +143,7 @@ export async function registerAuthenticator({
 export async function authenticate(
   apiUrl: string,
   token: string,
+  publicKey?: string,
 ): Promise<string | undefined> {
   if ("function" !== typeof navigator.credentials?.create) {
     throw new Error("Webauthn not supported.");
@@ -148,16 +151,19 @@ export async function authenticate(
 
   const auth = `Bearer ${token}`;
   const options = await getAuthenticationOptions(apiUrl, auth);
-  const data: AuthenticationResponseJSON = await startAuthentication(
+  const authResponse: AuthenticationResponseJSON = await startAuthentication(
     options,
   );
   let authenticationInfo;
 
-  if (data) {
+  if (authResponse) {
     authenticationInfo = await getAuthenticationInfo({
       apiUrl,
       auth,
-      data,
+      data: {
+        ...authResponse,
+        publicKey,
+      },
     });
   }
 

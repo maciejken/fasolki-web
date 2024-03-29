@@ -15,6 +15,7 @@ import {
 
 interface Data {
   mobile: boolean;
+  publicKey?: string;
 }
 
 async function renderLogin(
@@ -27,6 +28,7 @@ async function renderLogin(
   password.value = data.get("password") || "";
   authenticationToken.value = data.get("auth_token") || "";
   const mobile: string = data.get("mobile") || "";
+  const publicKey: string = data.get("publicKey") || "";
 
   const hasAuthData = !!(email.value && password.value) ||
     !!authenticationToken.value;
@@ -46,7 +48,7 @@ async function renderLogin(
     console.error("Failed to get authentication options:", e);
   }
 
-  return ctx.render({ mobile: mobile === "true" });
+  return ctx.render({ mobile: mobile === "true", publicKey });
 }
 
 export const handler: Handlers<Data> = {
@@ -65,7 +67,7 @@ export const handler: Handlers<Data> = {
 };
 
 export default function Login({ data }: PageProps<Data>) {
-  const { mobile } = data;
+  const { mobile, publicKey } = data;
   if (authenticationToken.value) {
     return (
       <div class="container mx-auto w-64">
@@ -74,6 +76,7 @@ export default function Login({ data }: PageProps<Data>) {
           appUrl={appUrl!}
           token={authenticationToken}
           mobile={mobile}
+          publicKey={publicKey}
         />
       </div>
     );
