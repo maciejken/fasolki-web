@@ -53,16 +53,21 @@ async function renderLogin(
 
 export const handler: Handlers<Data> = {
   GET(req: Request, ctx: FreshContext) {
-    const mobile = new URL(req.url).searchParams.get("mobile");
+    const searchParams = new URL(req.url).searchParams;
+    const mobile = searchParams.get("mobile");
+    const publicKey = searchParams.get("publicKey");
 
-    return ctx.render({ mobile: mobile === "true" });
+    return ctx.render({ mobile: mobile === "true", publicKey });
   },
   async POST(req: Request, ctx: FreshContext): Promise<Response> {
-    const data = new URLSearchParams(await req.text());
-    const mobile = new URL(req.url).searchParams.get("mobile");
-    data.set("mobile", mobile || "");
+    const formData = new URLSearchParams(await req.text());
+    const searchParams = new URL(req.url).searchParams;
+    const mobile = searchParams.get("mobile") || "";
+    const publicKey = searchParams.get("publicKey") || "";
+    formData.set("mobile", mobile);
+    formData.set("publicKey", publicKey);
 
-    return renderLogin(ctx, data);
+    return renderLogin(ctx, formData);
   },
 };
 
