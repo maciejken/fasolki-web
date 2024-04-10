@@ -63,7 +63,7 @@ export default function Authentication(
           <a
             href={`${appUrl}?${new URLSearchParams({
               mobile: mobile ? "true" : "false",
-              token: authToken.value,
+              token: encodeURIComponent(authToken.value),
             })}`}
             class="w-64 mt-4 h-10 py-2 flex justify-center bg-slate-50"
           >
