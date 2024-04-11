@@ -1,15 +1,16 @@
 import { apiUrl } from "../../config.ts";
+import { User } from "./types.ts";
 
 export default async function createUser(
-  data
+  data: User,
 ) {
   const url = `${apiUrl}/registration`;
   const response = await fetch(url, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json'
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
   });
   return response.json();
 }
