@@ -9,10 +9,11 @@ interface AuthenticationProps {
   appUrl: string;
   token: Signal<string>;
   mobile: boolean;
+  publicKey?: string;
 }
 
 export default function Authentication(
-  { apiUrl, appUrl, token, mobile }: AuthenticationProps,
+  { apiUrl, appUrl, token, mobile, publicKey }: AuthenticationProps,
 ) {
   const hasError = useSignal(false);
   const isLoading = useSignal(false);
@@ -33,6 +34,7 @@ export default function Authentication(
       const genericToken: string | undefined = await authenticate(
         apiUrl,
         token.value,
+        publicKey,
       );
 
       if (genericToken) {
@@ -61,7 +63,7 @@ export default function Authentication(
           <a
             href={`${appUrl}?${new URLSearchParams({
               mobile: mobile ? "true" : "false",
-              token: authToken.value,
+              token: encodeURIComponent(authToken.value),
             })}`}
             class="w-64 mt-4 h-10 py-2 flex justify-center bg-slate-50"
           >
