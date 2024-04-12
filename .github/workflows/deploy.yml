@@ -1,7 +1,7 @@
 name: Deploy
 on:
   push:
-    branches: [develop]
+    branches: develop
   pull_request:
     branches: develop
 
@@ -29,5 +29,6 @@ jobs:
       - name: Upload to Deno Deploy
         uses: denoland/deployctl@v1
         with:
-          project: "strong-dove-79" # 📝 Update the deploy project name if necessary
+          project: "fasolki-web-dev"
           entrypoint: "./main.ts"
+          root: ""
