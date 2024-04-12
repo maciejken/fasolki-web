@@ -14,6 +14,11 @@ interface ValidationParams<T> {
   auth: string;
 }
 
+const requestInit: RequestInit = {
+  credentials: "include",
+  mode: "cors",
+};
+
 export function getBasicAuth(email: string, password: string) {
   return `Basic ${btoa(`${email}:${password}`)}`;
 }
@@ -23,7 +28,7 @@ export async function getRegistrationToken(apiUrl: string, basicAuth: string) {
     headers: {
       Authorization: basicAuth,
     },
-    credentials: "include",
+    ...requestInit,
   });
   return response.json();
 }
@@ -36,7 +41,7 @@ export async function getAuthenticationToken(
     headers: {
       Authorization: basicAuth,
     },
-    credentials: "include",
+    ...requestInit,
   });
   return response.json();
 }
@@ -46,7 +51,7 @@ export async function getAuthenticationOptions(apiUrl: string, auth: string) {
     headers: {
       Authorization: auth,
     },
-    credentials: "include",
+    ...requestInit,
   });
   return response.json();
 }
@@ -65,7 +70,7 @@ export async function getAuthenticationInfo(
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
-      credentials: "include",
+      ...requestInit,
     },
   );
   return response.json();
@@ -83,7 +88,7 @@ export async function getRegistrationInfo(
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
-      credentials: "include",
+      ...requestInit,
     },
   );
   return response.json();
@@ -105,7 +110,7 @@ export async function getRegistrationOptions({
     headers: {
       Authorization: auth,
     },
-    credentials: "include",
+    ...requestInit,
   });
   return response.json();
 }
