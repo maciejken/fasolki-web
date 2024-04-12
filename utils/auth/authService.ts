@@ -23,6 +23,7 @@ export async function getRegistrationToken(apiUrl: string, basicAuth: string) {
     headers: {
       Authorization: basicAuth,
     },
+    credentials: "include",
   });
   return response.json();
 }
@@ -35,6 +36,7 @@ export async function getAuthenticationToken(
     headers: {
       Authorization: basicAuth,
     },
+    credentials: "include",
   });
   return response.json();
 }
@@ -44,6 +46,7 @@ export async function getAuthenticationOptions(apiUrl: string, auth: string) {
     headers: {
       Authorization: auth,
     },
+    credentials: "include",
   });
   return response.json();
 }
@@ -62,6 +65,7 @@ export async function getAuthenticationInfo(
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
+      credentials: "include",
     },
   );
   return response.json();
@@ -79,6 +83,7 @@ export async function getRegistrationInfo(
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
+      credentials: "include",
     },
   );
   return response.json();
@@ -100,6 +105,7 @@ export async function getRegistrationOptions({
     headers: {
       Authorization: auth,
     },
+    credentials: "include",
   });
   return response.json();
 }
