@@ -19,6 +19,11 @@ const requestInit: RequestInit = {
   mode: "cors",
 };
 
+export interface TokenData {
+  token: string;
+  encryptedToken: string;
+}
+
 export function getBasicAuth(email: string, password: string) {
   return `Basic ${btoa(`${email}:${password}`)}`;
 }
@@ -155,7 +160,7 @@ export async function authenticate(
   apiUrl: string,
   token: string,
   publicKey?: string,
-): Promise<string | undefined> {
+): Promise<TokenData | null> {
   if ("function" !== typeof navigator.credentials?.create) {
     throw new Error("Webauthn not supported.");
   }
@@ -178,5 +183,10 @@ export async function authenticate(
     });
   }
 
-  return authenticationInfo?.token;
+  return authenticationInfo?.token
+    ? {
+      token: authenticationInfo.token,
+      encryptedToken: authenticationInfo.encryptedToken,
+    }
+    : null;
 }
