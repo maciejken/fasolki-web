@@ -1,5 +1,5 @@
 import { Signal, useSignal } from "@preact/signals";
-import { authenticate } from "../utils/auth/authService.ts";
+import { authenticate, TokenData } from "../utils/auth/authService.ts";
 import SvgIcon from "../components/SvgIcon/SvgIcon.tsx";
 import getStatusIconName from "../components/SvgIcon/helpers/getStatusIconName.ts";
 import { JSX } from "preact/jsx-runtime";
@@ -18,6 +18,7 @@ export default function Authentication(
   const hasError = useSignal(false);
   const isLoading = useSignal(false);
   const authToken = useSignal("");
+  const encryptedToken = useSignal("");
 
   const iconName = getStatusIconName({
     isLoading: isLoading.value,
@@ -31,15 +32,17 @@ export default function Authentication(
     try {
       isLoading.value = true;
       hasError.value = false;
-      const genericToken: string | undefined = await authenticate(
+      const tokenData: TokenData | null = await authenticate(
         apiUrl,
         token.value,
         publicKey,
       );
 
-      if (genericToken) {
-        authToken.value = genericToken;
-        console.debug(genericToken);
+      if (tokenData?.token) {
+        authToken.value = tokenData.token;
+        encryptedToken.value = tokenData.encryptedToken;
+        console.debug("token:", tokenData.token);
+        console.debug("encrypted token:", encryptedToken);
       }
     } catch (e) {
       hasError.value = true;
@@ -63,7 +66,7 @@ export default function Authentication(
           <a
             href={`${appUrl}?${new URLSearchParams({
               mobile: mobile ? "true" : "false",
-              token: encodeURIComponent(authToken.value),
+              token: encodeURIComponent(encryptedToken.value),
             })}`}
             class="w-64 mt-4 h-10 py-2 flex justify-center bg-slate-50"
           >
